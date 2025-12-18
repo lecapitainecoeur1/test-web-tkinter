@@ -146,7 +146,7 @@ def calculer(operation, val1, val2=None):
 def nouvelle_question():
     """Génère une nouvelle question avec l'opération courante"""
     if st.session_state.current_operation:
-        n1, n2, q, sol = generer_operation(operation)
+        n1, n2, q, sol = generer_operation(op)
         st.session_state.nombre_1 = n1
         st.session_state.nombre_2 = n2
         st.session_state.question = q
