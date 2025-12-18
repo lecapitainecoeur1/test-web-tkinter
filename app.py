@@ -1,6 +1,5 @@
-import streamlit as st
-import random
-fromrom datetime import datetime
+fromrom streamlit as st
+import randomfromm datetime import datetime
 from enum import Enum
 
 class Operation(Enum):
