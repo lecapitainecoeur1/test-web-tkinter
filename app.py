@@ -148,7 +148,7 @@ def nouvelle_question():
     if st.session_state.current_operation is not None:
         # Vérifier si c'est une instance d'Enum Operation
         operation = st.session_state.current_operation
-        if isinstance(operation, Operation):
+        if isinstance(operation):
             n1, n2, q, sol = generer_operation(operation)
             st.session_state.nombre_1 = n1
             st.session_state.nombre_2 = n2
