@@ -235,7 +235,7 @@ else:
                     st.session_state.solution = sol
                     st.session_state.mode = "exercice"
                     st.rerun()
-                    return {op}  
+                    
     # Mode Exercice
     elif st.session_state.mode == "exercice":
         st.title("📝 Résolvez l'opération")
@@ -256,7 +256,7 @@ else:
                 enregistrer_score(reponse, st.session_state.solution, st.session_state.score, st.session_state.question)
                 
                 if st.button("🔄 Nouvelle question", type="primary"):
-                    n1, n2, q, sol = generer_operation(op)
+                    n1, n2, q, sol = generer_operation(st.session_state.current_operation = op)
                     st.session_state.nombre_1 = n1
                     st.session_state.nombre_2 = n2
                     st.session_state.question = q
