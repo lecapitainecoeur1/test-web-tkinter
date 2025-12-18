@@ -209,6 +209,7 @@ else:
             st.session_state.pseudo = ""
             st.session_state.score = 0
             st.session_state.mode = "menu"
+            st.session_state.last_result = None
     
     # Mode Menu
     if st.session_state.mode == "menu":
