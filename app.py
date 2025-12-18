@@ -1,4 +1,4 @@
-solution streamlit as st
+import streamlit as st
 import random
 from datetime import datetime
 from enum import Enum
