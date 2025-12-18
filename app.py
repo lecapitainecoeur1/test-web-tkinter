@@ -105,7 +105,13 @@ def generer_question(operation):
         question = f"{n1} mod {n2}"
         solution = n1 % n2
     
-#CSS personnalisé
+    return {
+        'question': question,
+        'solution': solution,
+        'operation': operation.value
+    }
+
+# CSS personnalisé
 st.markdown("""
     <style>
     .stButton>button {
@@ -229,6 +235,7 @@ elif st.session_state.mode == "menu":
 
 # Mode jeu
 elif st.session_state.mode == "jeu":
+    st.title(f"🧮 {st.session_state.question_actuelle['operation']}")
     st.markdown(f"<div class='big-score'>Score: {st.session_state.score}</div>", unsafe_allow_html=True)
     
     st.header(f"Question : {st.session_state.question_actuelle['question']} = ?")
