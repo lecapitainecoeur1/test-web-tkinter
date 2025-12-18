@@ -170,16 +170,17 @@ if st.session_state.pseudo == "":
     pseudo_input = st.text_input("Pseudo:", value=charger_pseudo(), key="pseudo_input")
     
     col1, col2 = st.columns(2)
-    with col1:
-        if st.button("✅ Valider", type="primary", use_container_width=True):
+            
+        col1, col2 = st.columns(2)
+        with col1:
+        if st.button("✅ Valider", type="primary", use_container_width=True, key="login_validate"):
             if pseudo_input.strip() != "":
                 st.session_state.pseudo = pseudo_input
                 sauvegarder_pseudo(pseudo_input)
-                st.rerun()
             else:
                 st.error("Veuillez entrer un pseudo valide.")
     with col2:
-        if st.button("❌ Quitter", use_container_width=True):
+        if st.button("❌ Quitter", use_container_width=True, key="login_quit"):
             st.stop()
 
 # Application principale
@@ -277,8 +278,6 @@ else:
                     st.session_state.pseudo
                 )
                 st.rerun()
-        
-        col1, col2 = st.columns(2)
         with col1:
             if st.button("🔄 Nouvelle question", use_container_width=True, key="new_q"):
                 n1, n2, q, sol = generer_operation(st.session_state.current_operation)
@@ -325,7 +324,6 @@ else:
                 with open("scores.txt", "w", encoding="utf-8") as fichier:
                     fichier.write("")
                 st.success("Historique effacé !")
-                st.rerun()
             except Exception as e:
                 st.error(f"Erreur: {e}")
     
