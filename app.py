@@ -105,12 +105,7 @@ def generer_question(operation):
         question = f"{n1} mod {n2}"
         solution = n1 % n2
     
-    return {
-        'solution': solution,
-        'operation': operation.value
-    }
-
-# CSS personnalisé
+#CSS personnalisé
 st.markdown("""
     <style>
     .stButton>button {
