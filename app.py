@@ -170,8 +170,6 @@ if st.session_state.pseudo == "":
     pseudo_input = st.text_input("Pseudo:", value=charger_pseudo(), key="pseudo_input")
     
     col1, col2 = st.columns(2)
-            
-        col1, col2 = st.columns(2)
         with col1:
         if st.button("✅ Valider", type="primary", use_container_width=True, key="login_validate"):
             if pseudo_input.strip() != "":
