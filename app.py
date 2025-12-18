@@ -10,13 +10,16 @@ if "historique" not in st.session_state:
     st.session_state.historique = []
 
 # --- Titre ---
-st.title("Operation en ligne")
+st.title("Opérations en ligne")
 
 # --- Pseudo ---
 pseudo = st.text_input("Entrez votre pseudo :", value=st.session_state.get("pseudo", ""))
 st.session_state.pseudo = pseudo
 
-st.write(f"Bonjour, {pseudo} ! Votre score actuel est {st.session_state.score}.")
+if pseudo:
+    st.write(f"Bonjour, {pseudo} ! Votre score actuel est {st.session_state.score}.")
+else:
+    st.info("Veuillez entrer un pseudo pour commencer.")
 
 # --- Fonction pour calculer ---
 def calculer(op_name, nombre_1=None, nombre_2=None):
@@ -59,14 +62,14 @@ def calculer(op_name, nombre_1=None, nombre_2=None):
             f"{maintenant} | {pseudo} | {op_name} | {solution}"
         )
 
-# --- Fonction pour générer nombres aléatoires ---
+# --- Fonction pour générer valeurs aléatoires ---
 def get_random_values(op_name):
     if op_name in ["Addition", "Soustraction", "Multiplication", "Division", "Modulo"]:
         return random.randint(1,100), random.randint(1,100)
     else:
         return random.randint(1,20), None
 
-# --- Interface avec boutons identiques à Tkinter ---
+# --- Interface : boutons en grille comme Tkinter ---
 st.subheader("Choisissez une opération:")
 
 rows = [
@@ -79,7 +82,9 @@ for row in rows:
     cols = st.columns(5)
     for i, op_name in enumerate(row):
         if cols[i].button(op_name):
-            if op_name == "Historique":
+            if not pseudo:
+                st.warning("Veuillez entrer un pseudo avant de commencer !")
+            elif op_name == "Historique":
                 st.subheader("Historique des calculs (dernières 20 entrées)")
                 for ligne in st.session_state.historique[-20:]:
                     st.write(ligne)
@@ -94,13 +99,13 @@ for row in rows:
                     n1 = cols[i].number_input("Nombre", value=n1, key=f"{op_name}_1")
                 calculer(op_name, n1, n2)
 
-# --- Boutons supplémentaires ---
+# --- Boutons supplémentaires : réinitialisation ---
+st.write("---")
 col1, col2 = st.columns(2)
 with col1:
     if st.button("Réinitialiser le score"):
         st.session_state.score = 0
         st.success("Score réinitialisé !")
-
 with col2:
     if st.button("Réinitialiser l'historique"):
         st.session_state.historique = []
