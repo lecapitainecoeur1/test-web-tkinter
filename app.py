@@ -208,6 +208,7 @@ else:
         if st.button("🚪 Déconnexion", use_container_width=True, key="sidebar_logout"):
             st.session_state.pseudo = ""
             st.session_state.score = 0
+            st.session_state.mode = "menu"
     
     # Mode Menu
     if st.session_state.mode == "menu":
