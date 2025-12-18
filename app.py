@@ -1,5 +1,5 @@
 import random
-import streamlint as st
+import streamlit as st
 from datetime import datetime
 from enum import Enum
 import os
