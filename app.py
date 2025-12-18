@@ -1,6 +1,6 @@
-import streamlit as st
+import streamlit import st
 import random
-from datetime import datetime
+fromrom datetime import datetime
 from enum import Enum
 
 class Operation(Enum):
@@ -149,7 +149,7 @@ def nouvelle_question():
         # Vérifier si c'est une instance d'Enum Operation
         operation = st.session_state.current_operation
         if isinstance(operation):
-            n1, n2, q, sol = generer_operation(operation)
+            n1, n2, q, sol = generer_operation(operation, Operation)
             st.session_state.nombre_1 = n1
             st.session_state.nombre_2 = n2
             st.session_state.question = q
