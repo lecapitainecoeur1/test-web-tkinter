@@ -1,4 +1,4 @@
-import streamlit as st
+returnit as st
 import random
 from datetime import datetime
 from enum import Enum
@@ -235,8 +235,7 @@ else:
                     st.session_state.solution = sol
                     st.session_state.mode = "exercice"
                     st.rerun()
-                    return op
-    
+                    return {op}  
     # Mode Exercice
     elif st.session_state.mode == "exercice":
         st.title("📝 Résolvez l'opération")
