@@ -1,4 +1,4 @@
-import streamlit as st
+op streamlit as st
 import random
 from datetime import datetime
 from enum import Enum
@@ -242,6 +242,7 @@ else:
                     if op == "aleatoire":
                         op = random.choice([o for _, o in operations if o != "aleatoire"])
                     st.session_state.current_operation = op
+                    operation = op
                     n1, n2, q, sol = generer_operation(op)
                     st.session_state.nombre_1 = n1
                     st.session_state.nombre_2 = n2
