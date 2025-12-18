@@ -1,6 +1,6 @@
 import random
 import streamlit as st
-import randomfromm datetime import datetime
+from datetime import datetime
 from enum import Enum
 
 class Operation(Enum):
