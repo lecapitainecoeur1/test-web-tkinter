@@ -235,6 +235,7 @@ else:
                     st.session_state.solution = sol
                     st.session_state.mode = "exercice"
                     st.rerun()
+                    return op
     
     # Mode Exercice
     elif st.session_state.mode == "exercice":
