@@ -1,143 +1,311 @@
 import streamlit as st
-import math
 import random
 from datetime import datetime
+from enum import Enum
+import os
 
-# --- Initialisation session ---
-if "score" not in st.session_state:
-    st.session_state.score = 0
-if "historique" not in st.session_state:
-    st.session_state.historique = []
-if "pseudo" not in st.session_state:
+class Operation(Enum):
+    ADDITION = "addition"
+    SOUSTRACTION = "soustraction"
+    MULTIPLICATION = "multiplication"
+    DIVISION = "division"
+    PUISSANCE2 = "puissance2"
+    RACINE_CARRE = "racine_carree"
+    PUISSANCE3 = "puissance3"
+    MODULO = "modulo"
+
+# Configuration de la page
+st.set_page_config(
+    page_title="Opérations Mathématiques",
+    page_icon="🧮",
+    layout="wide"
+)
+
+# Initialisation des variables de session
+if 'pseudo' not in st.session_state:
     st.session_state.pseudo = ""
-if "screen" not in st.session_state:
-    st.session_state.screen = "main"
-if "current_op" not in st.session_state:
-    st.session_state.current_op = None
-if "n1" not in st.session_state:
-    st.session_state.n1 = 0
-if "n2" not in st.session_state:
-    st.session_state.n2 = 0
+if 'score' not in st.session_state:
+    st.session_state.score = 0
+if 'current_operation' not in st.session_state:
+    st.session_state.current_operation = None
+if 'nombre_1' not in st.session_state:
+    st.session_state.nombre_1 = 0
+if 'nombre_2' not in st.session_state:
+    st.session_state.nombre_2 = 0
+if 'question' not in st.session_state:
+    st.session_state.question = ""
+if 'solution' not in st.session_state:
+    st.session_state.solution = 0
+if 'mode' not in st.session_state:
+    st.session_state.mode = "menu"
+if 'calc_result' not in st.session_state:
+    st.session_state.calc_result = None
 
-# --- Fonctions ---
-def calculer(op_name, n1, n2=None):
-    solution = None
-    erreur = None
+# Fonctions utilitaires
+def charger_pseudo():
     try:
-        if op_name == "Addition":
-            solution = n1 + n2
-        elif op_name == "Soustraction":
-            solution = n1 - n2
-        elif op_name == "Multiplication":
-            solution = n1 * n2
-        elif op_name == "Division":
-            if n2 != 0:
-                solution = n1 / n2
-            else:
-                erreur = "Division par zéro impossible"
-        elif op_name == "Modulo":
-            solution = n1 % n2
-        elif op_name == "Puissance²":
-            solution = n1 ** 2
-        elif op_name == "Puissance³":
-            solution = n1 ** 3
-        elif op_name == "Racine carrée":
-            if n1 >= 0:
-                solution = math.sqrt(n1)
-            else:
-                erreur = "Impossible de calculer racine carrée négative"
-    except Exception as e:
-        erreur = str(e)
+        with open("pseudo.txt", "r") as fichier:
+            return fichier.read().strip()
+    except FileNotFoundError:
+        return ""
 
-    if erreur:
-        st.error(erreur)
-        return None
-    else:
-        st.session_state.score += 1
-        maintenant = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        st.session_state.historique.append(f"{maintenant} | {st.session_state.pseudo} | {op_name} | {solution}")
-        return solution
+def sauvegarder_pseudo(pseudo):
+    with open("pseudo.txt", "w") as fichier:
+        fichier.write(pseudo)
 
-def get_random(op_name):
-    if op_name in ["Addition", "Soustraction", "Multiplication", "Division", "Modulo"]:
-        return random.randint(1,100), random.randint(1,100)
-    else:
-        return random.randint(1,20), None
+def enregistrer_score(user_reponse, solution, score, question):
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open("scores.txt", "a") as fichier:
+        if user_reponse == solution:
+            fichier.write(f"{now} | {st.session_state.pseudo} | Réponse correcte | Score: {score} | operation: {question} {user_reponse}\n")
+        else:
+            fichier.write(f"{now} | {st.session_state.pseudo} | Réponse incorrecte | Score: {score} | operation: {question} {user_reponse}\n")
 
-# --- Écran pseudo ---
+def afficher_historique():
+    try:
+        with open("scores.txt", "r") as fichier:
+            contenu = fichier.read()
+        if contenu == "":
+            return "Il n'y a pas d'historique pour le moment"
+        return contenu
+    except FileNotFoundError:
+        return "Il n'y a pas d'historique pour le moment"
+
+def generer_operation(operation):
+    nombre_1 = 0
+    nombre_2 = 0
+    question = ""
+    
+    if operation == Operation.PUISSANCE2:
+        nombre_1 = random.randint(1, 11)
+        question = f"{nombre_1}² = ?"
+        solution = nombre_1 * nombre_1
+    elif operation == Operation.MODULO:
+        nombre_1 = random.randint(10, 100)
+        nombre_2 = random.randint(1, 10)
+        question = f"{nombre_1} modulo {nombre_2} = ?"
+        solution = nombre_1 % nombre_2
+    elif operation == Operation.RACINE_CARRE:
+        nombre_1 = random.randint(1, 11)
+        question = f"√{nombre_1 * nombre_1} = ?"
+        solution = nombre_1
+    elif operation == Operation.ADDITION:
+        nombre_1 = random.randint(1, 100)
+        nombre_2 = random.randint(1, 100)
+        question = f"{nombre_1} + {nombre_2} = ?"
+        solution = nombre_1 + nombre_2
+    elif operation == Operation.SOUSTRACTION:
+        nombre_1 = random.randint(1, 100)
+        nombre_2 = random.randint(1, 100)
+        if nombre_1 < nombre_2:
+            nombre_1, nombre_2 = nombre_2, nombre_1
+        question = f"{nombre_1} - {nombre_2} = ?"
+        solution = nombre_1 - nombre_2
+    elif operation == Operation.DIVISION:
+        nombre_2 = random.randint(2, 10)
+        nombre_1 = random.randint(2, 10)
+        nombre_2 = nombre_2 * nombre_1
+        question = f"{nombre_2} ÷ {nombre_1} = ?"
+        solution = nombre_2 // nombre_1
+    elif operation == Operation.MULTIPLICATION:
+        nombre_1 = random.randint(1, 11)
+        nombre_2 = random.randint(1, 11)
+        question = f"{nombre_1} × {nombre_2} = ?"
+        solution = nombre_1 * nombre_2
+    elif operation == Operation.PUISSANCE3:
+        nombre_1 = random.randint(1, 5)
+        question = f"{nombre_1}³ = ?"
+        solution = nombre_1 * nombre_1 * nombre_1
+    
+    return nombre_1, nombre_2, question, solution
+
+def calculer(operation, val1, val2=None):
+    if operation == "multiplication":
+        return val1 * val2
+    elif operation == "division":
+        return val1 // val2 if val2 != 0 else "Erreur: division par zéro"
+    elif operation == "addition":
+        return val1 + val2
+    elif operation == "soustraction":
+        return val1 - val2
+    elif operation == "puissance2":
+        return val1 * val1
+    elif operation == "puissance3":
+        return val1 * val1 * val1
+    elif operation == "racine_carree":
+        return int(val1 ** 0.5)
+    elif operation == "modulo":
+        return val1 % val2 if val2 != 0 else "Erreur: division par zéro"
+
+# CSS personnalisé
+st.markdown("""
+    <style>
+    .big-font {
+        font-size: 40px !important;
+        font-weight: bold;
+        color: #1f77b4;
+    }
+    .score-font {
+        font-size: 30px !important;
+        font-weight: bold;
+        color: #2ca02c;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# Page de connexion
 if st.session_state.pseudo == "":
-    st.title("Operation Web - Entrez votre pseudo")
-    st.session_state.pseudo = st.text_input("Pseudo :")
-    if st.session_state.pseudo != "":
-        st.session_state.screen = "main"
-    st.stop()
+    st.title("🎮 Bienvenue dans Opérations Mathématiques")
+    st.write("### Entrez votre pseudo pour commencer")
+    
+    pseudo_input = st.text_input("Pseudo:", value=charger_pseudo(), key="pseudo_input")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("✅ Valider", type="primary", use_container_width=True):
+            if pseudo_input.strip() != "":
+                st.session_state.pseudo = pseudo_input
+                sauvegarder_pseudo(pseudo_input)
+                st.rerun()
+            else:
+                st.error("Veuillez entrer un pseudo valide.")
+    with col2:
+        if st.button("❌ Quitter", use_container_width=True):
+            st.stop()
 
-# --- Écran principal ---
-if st.session_state.screen == "main":
-    st.title(f"Bonjour {st.session_state.pseudo} ! Score : {st.session_state.score}")
-    st.subheader("Choisissez une opération :")
+# Application principale
+else:
+    # Sidebar
+    with st.sidebar:
+        st.title(f"👤 {st.session_state.pseudo}")
+        st.markdown(f'<p class="score-font">Score: {st.session_state.score}</p>', unsafe_allow_html=True)
+        st.divider()
+        
+        if st.button("🏠 Menu Principal", use_container_width=True):
+            st.session_state.mode = "menu"
+            st.rerun()
+        
+        if st.button("🧮 Calculette", use_container_width=True):
+            st.session_state.mode = "calculette"
+            st.rerun()
+        
+        if st.button("📊 Historique", use_container_width=True):
+            st.session_state.mode = "historique"
+            st.rerun()
+        
+        if st.button("ℹ️ Crédits", use_container_width=True):
+            st.session_state.mode = "credits"
+            st.rerun()
+        
+        st.divider()
+        if st.button("🚪 Déconnexion", use_container_width=True):
+            st.session_state.pseudo = ""
+            st.session_state.score = 0
+            st.rerun()
     
-    rows = [
-        ["Multiplication", "Division", "Addition", "Modulo", "Soustraction"],
-        ["Puissance²", "Puissance³", "Racine carrée", "Aléatoire", "À venir"],
-        ["À venir", "À venir", "À venir", "Calculette", "Historique"]
-    ]
+    # Mode Menu
+    if st.session_state.mode == "menu":
+        st.title("🎯 Choisissez une opération")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        operations = [
+            ("✖️ Multiplication", Operation.MULTIPLICATION),
+            ("➗ Division", Operation.DIVISION),
+            ("➖ Soustraction", Operation.SOUSTRACTION),
+            ("➕ Addition", Operation.ADDITION),
+            ("🎲 Aléatoire", "aleatoire"),
+            ("√ Racine Carrée", Operation.RACINE_CARRE),
+            ("² Puissance 2", Operation.PUISSANCE2),
+            ("³ Puissance 3", Operation.PUISSANCE3),
+            ("% Modulo", Operation.MODULO),
+        ]
+        
+        cols = [col1, col2, col3, col4]
+        for idx, (label, op) in enumerate(operations):
+            with cols[idx % 4]:
+                if st.button(label, key=f"op_{idx}", use_container_width=True):
+                    if op == "aleatoire":
+                        op = random.choice([o for _, o in operations if o != "aleatoire"])
+                    st.session_state.current_operation = op
+                    n1, n2, q, sol = generer_operation(op)
+                    st.session_state.nombre_1 = n1
+                    st.session_state.nombre_2 = n2
+                    st.session_state.question = q
+                    st.session_state.solution = sol
+                    st.session_state.mode = "exercice"
+                    st.rerun()
     
-    for row in rows:
-        cols = st.columns(5)
-        for i, op_name in enumerate(row):
-            if cols[i].button(op_name):
-                if op_name == "Historique":
-                    st.session_state.screen = "historique"
-                elif op_name == "Calculette":
-                    st.info("Fonction calculette à venir")
-                elif op_name != "À venir":
-                    st.session_state.current_op = op_name
-                    st.session_state.n1, st.session_state.n2 = get_random(op_name)
-                    st.session_state.screen = "operation"
-                st.experimental_rerun()
+    # Mode Exercice
+    elif st.session_state.mode == "exercice":
+        st.title("📝 Résolvez l'opération")
+        st.markdown(f'<p class="big-font">{st.session_state.question}</p>', unsafe_allow_html=True)
+        
+        reponse = st.number_input("Votre réponse:", value=0, step=1, key="user_answer")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("✅ Valider", type="primary", use_container_width=True):
+                if reponse == st.session_state.solution:
+                    st.session_state.score += 1
+                    st.success(f"✅ Correct ! La réponse est bien {st.session_state.solution}")
+                else:
+                    st.session_state.score -= 1
+                    st.error(f"❌ Incorrect ! La réponse était {st.session_state.solution}")
                 
-# --- Écran opération ---
-elif st.session_state.screen == "operation":
-    st.subheader(f"Opération : {st.session_state.current_op}")
-    n1 = st.number_input("Nombre 1", value=st.session_state.n1, key="op_n1")
-    if st.session_state.n2 is not None:
-        n2 = st.number_input("Nombre 2", value=st.session_state.n2, key="op_n2")
-    else:
-        n2 = None
-
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Valider"):
-            solution = calculer(st.session_state.current_op, n1, n2)
-            st.session_state.solution = solution
-            st.session_state.screen = "resultat"
-            st.experimental_rerun()
-    with col2:
-        if st.button("Annuler"):
-            st.session_state.screen = "main"
-            st.experimental_rerun()
-
-# --- Écran résultat ---
-elif st.session_state.screen == "resultat":
-    st.subheader(f"Résultat de {st.session_state.current_op}")
-    st.success(f"{st.session_state.solution}")
+                enregistrer_score(reponse, st.session_state.solution, st.session_state.score, st.session_state.question)
+                
+                if st.button("🔄 Nouvelle question", type="primary"):
+                    n1, n2, q, sol = generer_operation(st.session_state.current_operation)
+                    st.session_state.nombre_1 = n1
+                    st.session_state.nombre_2 = n2
+                    st.session_state.question = q
+                    st.session_state.solution = sol
+                    st.rerun()
+        
+        with col2:
+            if st.button("🏠 Retour au menu", use_container_width=True):
+                st.session_state.mode = "menu"
+                st.rerun()
     
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Rejouer même opération"):
-            st.session_state.screen = "operation"
-            st.experimental_rerun()
-    with col2:
-        if st.button("Retour au menu principal"):
-            st.session_state.screen = "main"
-            st.experimental_rerun()
-
-# --- Écran historique ---
-elif st.session_state.screen == "historique":
-    st.subheader("Historique des calculs (dernières 20 entrées)")
-    for ligne in st.session_state.historique[-20:]:
-        st.write(ligne)
-    if st.button("Retour au menu principal"):
-        st.session_state.screen = "main"
-        st.experimental_rerun()
+    # Mode Calculette
+    elif st.session_state.mode == "calculette":
+        st.title("🧮 Calculette")
+        
+        operation_calc = st.selectbox(
+            "Choisissez une opération:",
+            ["multiplication", "division", "addition", "soustraction", 
+             "puissance2", "puissance3", "racine_carree", "modulo"]
+        )
+        
+        val1 = st.number_input("Premier nombre:", value=0.0, key="calc_val1")
+        
+        if operation_calc in ["multiplication", "division", "addition", "soustraction", "modulo"]:
+            val2 = st.number_input("Deuxième nombre:", value=0.0, key="calc_val2")
+        else:
+            val2 = None
+        
+        if st.button("🔢 Calculer", type="primary"):
+            result = calculer(operation_calc, val1, val2)
+            st.success(f"Résultat: {result}")
+    
+    # Mode Historique
+    elif st.session_state.mode == "historique":
+        st.title("📊 Historique des Scores")
+        historique = afficher_historique()
+        st.text_area("", historique, height=400)
+    
+    # Mode Crédits
+    elif st.session_state.mode == "credits":
+        st.title("ℹ️ Crédits")
+        st.markdown("""
+        ### 👨‍💻 Programmeur: ☺lecapitainecoeur☺
+        ### 🎨 Créateur: ☺lecapitainecoeur☺
+        ### 💡 Imaginateur: ☺lecapitainecoeur☺
+        
+        ---
+        
+        📧 Support: lecapitainecoeurytbpro@gmail.com
+        
+        🔗 GitHub: [github.com/HGVKSHDBQSJBKSQJBF/operation](https://github.com/HGVKSHDBQSJBKSQJBF/operation)
+        """)
