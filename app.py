@@ -145,14 +145,19 @@ def calculer(operation, val1, val2=None):
 
 def nouvelle_question():
     """Génère une nouvelle question avec l'opération courante"""
-    if st.session_state.current_operation:
-        n1, n2, q, sol = generer_operation(op)
-        st.session_state.nombre_1 = n1
-        st.session_state.nombre_2 = n2
-        st.session_state.question = q
-        st.session_state.solution = sol
-        st.session_state.last_result = None
-        st.session_state.show_result = False
+    if st.session_state.current_operation is not None:
+        # Vérifier si c'est une instance d'Enum Operation
+        operation = st.session_state.current_operation
+        if isinstance(operation, Operation):
+            n1, n2, q, sol = generer_operation(operation)
+            st.session_state.nombre_1 = n1
+            st.session_state.nombre_2 = n2
+            st.session_state.question = q
+            st.session_state.solution = sol
+            st.session_state.last_result = None
+            st.session_state.show_result = False
+        else:
+            st.error(f"Type d'opération invalide: {type(operation)}")
 
 # CSS personnalisé
 st.markdown("""
@@ -242,7 +247,6 @@ else:
                     if op == "aleatoire":
                         op = random.choice([o for _, o in operations if o != "aleatoire"])
                     st.session_state.current_operation = op
-                    operation = op
                     n1, n2, q, sol = generer_operation(op)
                     st.session_state.nombre_1 = n1
                     st.session_state.nombre_2 = n2
@@ -265,9 +269,9 @@ else:
         
         st.markdown(f'<p class="big-font">{st.session_state.question} = ?</p>', unsafe_allow_html=True)
         
-        # Afficher l'opération courante
+        # Afficher l'opération courante pour debug
         if st.session_state.current_operation:
-            st.info(f"Type d'opération: {st.session_state.current_operation.value}")
+            st.caption(f"🔍 Type d'opération: {st.session_state.current_operation.value if isinstance(st.session_state.current_operation, Operation) else st.session_state.current_operation}")
         
         # Formulaire pour capturer la réponse
         with st.form(key="answer_form", clear_on_submit=True):
