@@ -244,37 +244,49 @@ else:
         # Initialiser l'état de validation si nécessaire
         if 'answer_validated' not in st.session_state:
             st.session_state.answer_validated = False
+        if 'last_result' not in st.session_state:
+            st.session_state.last_result = None
+        
+        # Afficher le dernier résultat s'il existe
+        if st.session_state.last_result:
+            if st.session_state.last_result == "correct":
+                st.success(f"✅ Correct ! La réponse était bien {st.session_state.solution}")
+            else:
+                st.error(f"❌ Incorrect ! La réponse était {st.session_state.solution}")
         
         reponse = st.number_input("Votre réponse:", value=0, step=1, key="user_answer")
         
+        def valider_reponse():
+            if reponse == st.session_state.solution:
+                st.session_state.score += 1
+                st.session_state.last_result = "correct"
+            else:
+                st.session_state.score -= 1
+                st.session_state.last_result = "incorrect"
+            
+            enregistrer_score(reponse, st.session_state.solution, st.session_state.score, st.session_state.question)
+        
+        def nouvelle_question():
+            n1, n2, q, sol = generer_operation(st.session_state.current_operation)
+            st.session_state.nombre_1 = n1
+            st.session_state.nombre_2 = n2
+            st.session_state.question = q
+            st.session_state.solution = sol
+            st.session_state.last_result = None
+        
+        def retour_menu():
+            st.session_state.mode = "menu"
+            st.session_state.last_result = None
+        
         col1, col2, col3 = st.columns(3)
         with col1:
-            if st.button("✅ Valider", type="primary", use_container_width=True):
-                if reponse == st.session_state.solution:
-                    st.session_state.score += 1
-                    st.success(f"✅ Correct ! La réponse est bien {st.session_state.solution}")
-                else:
-                    st.session_state.score -= 1
-                    st.error(f"❌ Incorrect ! La réponse était {st.session_state.solution}")
-                
-                enregistrer_score(reponse, st.session_state.solution, st.session_state.score, st.session_state.question)
-                st.session_state.answer_validated = True
+            st.button("✅ Valider", type="primary", use_container_width=True, on_click=valider_reponse)
         
         with col2:
-            if st.button("🔄 Nouvelle question", use_container_width=True):
-                n1, n2, q, sol = generer_operation(st.session_state.current_operation)
-                st.session_state.nombre_1 = n1
-                st.session_state.nombre_2 = n2
-                st.session_state.question = q
-                st.session_state.solution = sol
-                st.session_state.answer_validated = False
-                st.rerun()
+            st.button("🔄 Nouvelle question", use_container_width=True, on_click=nouvelle_question)
         
         with col3:
-            if st.button("🏠 Retour au menu", use_container_width=True):
-                st.session_state.mode = "menu"
-                st.session_state.answer_validated = False
-                st.rerun()
+            st.button("🏠 Retour au menu", use_container_width=True, on_click=retour_menu)
     
     # Mode Calculette
     elif st.session_state.mode == "calculette":
