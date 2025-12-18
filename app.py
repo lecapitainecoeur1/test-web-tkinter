@@ -241,9 +241,13 @@ else:
         st.title("📝 Résolvez l'opération")
         st.markdown(f'<p class="big-font">{st.session_state.question}</p>', unsafe_allow_html=True)
         
+        # Initialiser l'état de validation si nécessaire
+        if 'answer_validated' not in st.session_state:
+            st.session_state.answer_validated = False
+        
         reponse = st.number_input("Votre réponse:", value=0, step=1, key="user_answer")
         
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         with col1:
             if st.button("✅ Valider", type="primary", use_container_width=True):
                 if reponse == st.session_state.solution:
@@ -254,18 +258,22 @@ else:
                     st.error(f"❌ Incorrect ! La réponse était {st.session_state.solution}")
                 
                 enregistrer_score(reponse, st.session_state.solution, st.session_state.score, st.session_state.question)
-                
-                if st.button("🔄 Nouvelle question", type="primary"):
-                    n1, n2, q, sol = generer_operation(st.session_state.current_operation)
-                    st.session_state.nombre_1 = n1
-                    st.session_state.nombre_2 = n2
-                    st.session_state.question = q
-                    st.session_state.solution = sol
-                    st.rerun()
+                st.session_state.answer_validated = True
         
         with col2:
+            if st.button("🔄 Nouvelle question", use_container_width=True):
+                n1, n2, q, sol = generer_operation(st.session_state.current_operation)
+                st.session_state.nombre_1 = n1
+                st.session_state.nombre_2 = n2
+                st.session_state.question = q
+                st.session_state.solution = sol
+                st.session_state.answer_validated = False
+                st.rerun()
+        
+        with col3:
             if st.button("🏠 Retour au menu", use_container_width=True):
                 st.session_state.mode = "menu"
+                st.session_state.answer_validated = False
                 st.rerun()
     
     # Mode Calculette
