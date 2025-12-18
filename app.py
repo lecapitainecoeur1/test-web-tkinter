@@ -40,30 +40,39 @@ if 'mode' not in st.session_state:
     st.session_state.mode = "menu"
 if 'calc_result' not in st.session_state:
     st.session_state.calc_result = None
+if 'last_result' not in st.session_state:
+    st.session_state.last_result = None
+if 'user_response' not in st.session_state:
+    st.session_state.user_response = 0
 
 # Fonctions utilitaires
 def charger_pseudo():
     try:
-        with open("pseudo.txt", "r") as fichier:
+        with open("pseudo.txt", "r", encoding="utf-8") as fichier:
             return fichier.read().strip()
     except FileNotFoundError:
         return ""
 
 def sauvegarder_pseudo(pseudo):
-    with open("pseudo.txt", "w") as fichier:
+    with open("pseudo.txt", "w", encoding="utf-8") as fichier:
         fichier.write(pseudo)
 
-def enregistrer_score(user_reponse, solution, score, question):
+def enregistrer_score(user_reponse, solution, score, question, pseudo):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open("scores.txt", "a") as fichier:
-        if user_reponse == solution:
-            fichier.write(f"{now} | {st.session_state.pseudo} | Réponse correcte | Score: {score} | operation: {question} {user_reponse}\n")
-        else:
-            fichier.write(f"{now} | {st.session_state.pseudo} | Réponse incorrecte | Score: {score} | operation: {question} {user_reponse}\n")
+    try:
+        with open("scores.txt", "a", encoding="utf-8") as fichier:
+            if user_reponse == solution:
+                fichier.write(f"{now} | {pseudo} | Réponse correcte | Score: {score} | operation: {question} = {user_reponse}\n")
+            else:
+                fichier.write(f"{now} | {pseudo} | Réponse incorrecte | Score: {score} | operation: {question} = {user_reponse} (attendu: {solution})\n")
+        return True
+    except Exception as e:
+        st.error(f"Erreur lors de l'enregistrement: {e}")
+        return False
 
 def afficher_historique():
     try:
-        with open("scores.txt", "r") as fichier:
+        with open("scores.txt", "r", encoding="utf-8") as fichier:
             contenu = fichier.read()
         if contenu == "":
             return "Il n'y a pas d'historique pour le moment"
@@ -78,43 +87,43 @@ def generer_operation(operation):
     
     if operation == Operation.PUISSANCE2:
         nombre_1 = random.randint(1, 11)
-        question = f"{nombre_1}² = ?"
+        question = f"{nombre_1}²"
         solution = nombre_1 * nombre_1
     elif operation == Operation.MODULO:
         nombre_1 = random.randint(10, 100)
         nombre_2 = random.randint(1, 10)
-        question = f"{nombre_1} modulo {nombre_2} = ?"
+        question = f"{nombre_1} modulo {nombre_2}"
         solution = nombre_1 % nombre_2
     elif operation == Operation.RACINE_CARRE:
         nombre_1 = random.randint(1, 11)
-        question = f"√{nombre_1 * nombre_1} = ?"
+        question = f"√{nombre_1 * nombre_1}"
         solution = nombre_1
     elif operation == Operation.ADDITION:
         nombre_1 = random.randint(1, 100)
         nombre_2 = random.randint(1, 100)
-        question = f"{nombre_1} + {nombre_2} = ?"
+        question = f"{nombre_1} + {nombre_2}"
         solution = nombre_1 + nombre_2
     elif operation == Operation.SOUSTRACTION:
         nombre_1 = random.randint(1, 100)
         nombre_2 = random.randint(1, 100)
         if nombre_1 < nombre_2:
             nombre_1, nombre_2 = nombre_2, nombre_1
-        question = f"{nombre_1} - {nombre_2} = ?"
+        question = f"{nombre_1} - {nombre_2}"
         solution = nombre_1 - nombre_2
     elif operation == Operation.DIVISION:
         nombre_2 = random.randint(2, 10)
         nombre_1 = random.randint(2, 10)
         nombre_2 = nombre_2 * nombre_1
-        question = f"{nombre_2} ÷ {nombre_1} = ?"
+        question = f"{nombre_2} ÷ {nombre_1}"
         solution = nombre_2 // nombre_1
     elif operation == Operation.MULTIPLICATION:
         nombre_1 = random.randint(1, 11)
         nombre_2 = random.randint(1, 11)
-        question = f"{nombre_1} × {nombre_2} = ?"
+        question = f"{nombre_1} × {nombre_2}"
         solution = nombre_1 * nombre_2
     elif operation == Operation.PUISSANCE3:
         nombre_1 = random.randint(1, 5)
-        question = f"{nombre_1}³ = ?"
+        question = f"{nombre_1}³"
         solution = nombre_1 * nombre_1 * nombre_1
     
     return nombre_1, nombre_2, question, solution
@@ -183,6 +192,7 @@ else:
         
         if st.button("🏠 Menu Principal", use_container_width=True):
             st.session_state.mode = "menu"
+            st.session_state.last_result = None
             st.rerun()
         
         if st.button("🧮 Calculette", use_container_width=True):
@@ -234,18 +244,12 @@ else:
                     st.session_state.question = q
                     st.session_state.solution = sol
                     st.session_state.mode = "exercice"
+                    st.session_state.last_result = None
                     st.rerun()
     
     # Mode Exercice
     elif st.session_state.mode == "exercice":
         st.title("📝 Résolvez l'opération")
-        st.markdown(f'<p class="big-font">{st.session_state.question}</p>', unsafe_allow_html=True)
-        
-        # Initialiser l'état de validation si nécessaire
-        if 'answer_validated' not in st.session_state:
-            st.session_state.answer_validated = False
-        if 'last_result' not in st.session_state:
-            st.session_state.last_result = None
         
         # Afficher le dernier résultat s'il existe
         if st.session_state.last_result:
@@ -254,39 +258,48 @@ else:
             else:
                 st.error(f"❌ Incorrect ! La réponse était {st.session_state.solution}")
         
-        reponse = st.number_input("Votre réponse:", value=0, step=1, key="user_answer")
+        st.markdown(f'<p class="big-font">{st.session_state.question} = ?</p>', unsafe_allow_html=True)
         
-        def valider_reponse():
-            if reponse == st.session_state.solution:
-                st.session_state.score += 1
-                st.session_state.last_result = "correct"
-            else:
-                st.session_state.score -= 1
-                st.session_state.last_result = "incorrect"
+        # Formulaire pour capturer la réponse
+        with st.form(key="answer_form", clear_on_submit=True):
+            reponse = st.number_input("Votre réponse:", value=0, step=1, key="user_input")
+            submit = st.form_submit_button("✅ Valider", type="primary", use_container_width=True)
             
-            enregistrer_score(reponse, st.session_state.solution, st.session_state.score, st.session_state.question)
+            if submit:
+                st.session_state.user_response = int(reponse)
+                if reponse == st.session_state.solution:
+                    st.session_state.score += 1
+                    st.session_state.last_result = "correct"
+                else:
+                    st.session_state.score -= 1
+                    st.session_state.last_result = "incorrect"
+                
+                # Enregistrer dans le fichier
+                enregistrer_score(
+                    int(reponse), 
+                    st.session_state.solution, 
+                    st.session_state.score, 
+                    st.session_state.question,
+                    st.session_state.pseudo
+                )
+                st.rerun()
         
-        def nouvelle_question():
-            n1, n2, q, sol = generer_operation(st.session_state.current_operation)
-            st.session_state.nombre_1 = n1
-            st.session_state.nombre_2 = n2
-            st.session_state.question = q
-            st.session_state.solution = sol
-            st.session_state.last_result = None
-        
-        def retour_menu():
-            st.session_state.mode = "menu"
-            st.session_state.last_result = None
-        
-        col1, col2, col3 = st.columns(3)
+        col1, col2 = st.columns(2)
         with col1:
-            st.button("✅ Valider", type="primary", use_container_width=True, on_click=valider_reponse)
+            if st.button("🔄 Nouvelle question", use_container_width=True, key="new_q"):
+                n1, n2, q, sol = generer_operation(st.session_state.current_operation)
+                st.session_state.nombre_1 = n1
+                st.session_state.nombre_2 = n2
+                st.session_state.question = q
+                st.session_state.solution = sol
+                st.session_state.last_result = None
+                st.rerun()
         
         with col2:
-            st.button("🔄 Nouvelle question", use_container_width=True, on_click=nouvelle_question)
-        
-        with col3:
-            st.button("🏠 Retour au menu", use_container_width=True, on_click=retour_menu)
+            if st.button("🏠 Retour au menu", use_container_width=True, key="back_menu"):
+                st.session_state.mode = "menu"
+                st.session_state.last_result = None
+                st.rerun()
     
     # Mode Calculette
     elif st.session_state.mode == "calculette":
@@ -313,7 +326,16 @@ else:
     elif st.session_state.mode == "historique":
         st.title("📊 Historique des Scores")
         historique = afficher_historique()
-        st.text_area("", historique, height=400)
+        st.text_area("", historique, height=400, key="hist_area")
+        
+        if st.button("🗑️ Effacer l'historique", type="secondary"):
+            try:
+                with open("scores.txt", "w", encoding="utf-8") as fichier:
+                    fichier.write("")
+                st.success("Historique effacé !")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Erreur: {e}")
     
     # Mode Crédits
     elif st.session_state.mode == "credits":
