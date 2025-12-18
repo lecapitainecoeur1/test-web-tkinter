@@ -106,7 +106,6 @@ def generer_question(operation):
         solution = n1 % n2
     
     return {
-        'question': question,
         'solution': solution,
         'operation': operation.value
     }
