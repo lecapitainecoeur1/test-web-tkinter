@@ -190,28 +190,23 @@ else:
         st.markdown(f'<p class="score-font">Score: {st.session_state.score}</p>', unsafe_allow_html=True)
         st.divider()
         
-        if st.button("🏠 Menu Principal", use_container_width=True):
+        if st.button("🏠 Menu Principal", use_container_width=True, key="sidebar_menu"):
             st.session_state.mode = "menu"
             st.session_state.last_result = None
-            st.rerun()
         
-        if st.button("🧮 Calculette", use_container_width=True):
+        if st.button("🧮 Calculette", use_container_width=True, key="sidebar_calc"):
             st.session_state.mode = "calculette"
-            st.rerun()
         
-        if st.button("📊 Historique", use_container_width=True):
+        if st.button("📊 Historique", use_container_width=True, key="sidebar_hist"):
             st.session_state.mode = "historique"
-            st.rerun()
         
-        if st.button("ℹ️ Crédits", use_container_width=True):
+        if st.button("ℹ️ Crédits", use_container_width=True, key="sidebar_cred"):
             st.session_state.mode = "credits"
-            st.rerun()
         
         st.divider()
-        if st.button("🚪 Déconnexion", use_container_width=True):
+        if st.button("🚪 Déconnexion", use_container_width=True, key="sidebar_logout"):
             st.session_state.pseudo = ""
             st.session_state.score = 0
-            st.rerun()
     
     # Mode Menu
     if st.session_state.mode == "menu":
@@ -245,7 +240,6 @@ else:
                     st.session_state.solution = sol
                     st.session_state.mode = "exercice"
                     st.session_state.last_result = None
-                    st.rerun()
     
     # Mode Exercice
     elif st.session_state.mode == "exercice":
@@ -293,13 +287,11 @@ else:
                 st.session_state.question = q
                 st.session_state.solution = sol
                 st.session_state.last_result = None
-                st.rerun()
         
         with col2:
             if st.button("🏠 Retour au menu", use_container_width=True, key="back_menu"):
                 st.session_state.mode = "menu"
                 st.session_state.last_result = None
-                st.rerun()
     
     # Mode Calculette
     elif st.session_state.mode == "calculette":
