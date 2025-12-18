@@ -1,4 +1,4 @@
-import streamlit as st
+solort streamlit as st
 import random
 from datetime import datetime
 from enum import Enum
@@ -261,6 +261,7 @@ else:
                     st.session_state.nombre_2 = n2
                     st.session_state.question = q
                     st.session_state.solution = sol
+                    st.session_state.mode = "exercice"
                     st.rerun()
         
         with col2:
