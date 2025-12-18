@@ -379,4 +379,4 @@ elif st.session_state.mode == "historique":
     
     if st.button("🏠 Retour Menu", use_container_width=True):
         st.session_state.mode = "menu"
-        st.rerun())
+        st.rerun()
