@@ -1,4 +1,5 @@
-fromrom streamlit as st
+import random
+import streamlit as st
 import randomfromm datetime import datetime
 from enum import Enum
 
