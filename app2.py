@@ -55,7 +55,7 @@ def nouvelle_question():
     st.session_state.nombre1 = n1
     st.session_state.nombre2 = n2
     st.session_state.solution = sol
-    st.session_state.feedback = None
+    st.session_state.feedback = true
 
 # Titre et style
 st.title("🧮 Entraîneur Mathématiques")
@@ -97,8 +97,10 @@ if st.session_state.nombre1 == 0 and st.session_state.nombre2 == 0:
 if st.session_state.feedback:
     if st.session_state.feedback == "correct":
         st.success("✅ Bravo ! C'est correct !")
+        time.sleep(2.5)
     else:
         st.error(f"❌ Incorrect ! La bonne réponse était {st.session_state.solution}")
+        time.sleep(2.5)
 
 # Obtenir le symbole de l'opération
 _, _, _, symbole = generer_nombres(st.session_state.operation)
