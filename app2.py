@@ -96,11 +96,11 @@ if st.session_state.nombre1 == 0 and st.session_state.nombre2 == 0:
 # Afficher le feedback si disponible
 if st.session_state.feedback:
     if st.session_state.feedback == "correct":
-        st.success("✅ Bravo ! C'est correct !")
-        time.sleep(2.5)
+        with st.spinner(st.success("✅ Bravo ! C'est correct !")):
+            time.sleep(2.5)
     else:
-        st.error(f"❌ Incorrect ! La bonne réponse était {st.session_state.solution}")
-        time.sleep(2.5)
+        with st.spinner(st.error(f"❌ Incorrect ! La bonne réponse était {st.session_state.solution}")):
+            time.sleep(2.5)
 
 # Obtenir le symbole de l'opération
 _, _, _, symbole = generer_nombres(st.session_state.operation)
