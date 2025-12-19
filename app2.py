@@ -93,15 +93,6 @@ if st.session_state.nombre1 == 0 and st.session_state.nombre2 == 0:
     st.session_state.operation = operation
     nouvelle_question()
 
-# Afficher le feedback si disponible
-if st.session_state.feedback:
-    if st.session_state.feedback == "correct":
-        with st.spinner(st.success("✅ Bravo ! C'est correct !")):
-            time.sleep(2.5)
-    else:
-        with st.spinner(st.error(f"❌ Incorrect ! La bonne réponse était {st.session_state.solution}")):
-            time.sleep(2.5)
-
 # Obtenir le symbole de l'opération
 _, _, _, symbole = generer_nombres(st.session_state.operation)
 
@@ -119,9 +110,9 @@ with st.form("reponse_form", clear_on_submit=True):
         
         if int(reponse) == st.session_state.solution:
             st.session_state.score += 1
-            st.session_state.feedback = "correct"
+            st.success("✅ Bravo ! C'est correct !")
         else:
-            st.session_state.feedback = "incorrect"
+            st.error(f"❌ Incorrect ! La bonne réponse était {st.session_state.solution}")
         
         # Générer automatiquement une nouvelle question
         nouvelle_question()
