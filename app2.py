@@ -55,7 +55,7 @@ def nouvelle_question():
     st.session_state.nombre1 = n1
     st.session_state.nombre2 = n2
     st.session_state.solution = sol
-    st.session_state.feedback = true
+    st.session_state.feedback
 
 # Titre et style
 st.title("🧮 Entraîneur Mathématiques")
