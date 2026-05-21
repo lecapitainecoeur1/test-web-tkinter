@@ -404,12 +404,11 @@ def page_quiz():
 
     if not answered:
         rnd = st.session_state.quiz_round
-        with st.form(f"quiz_form_{rnd}", clear_on_submit=True):
-            user_input = st.number_input("Ta réponse :", step=1, value=0, key=f"quiz_input_{rnd}")
-            submitted = st.form_submit_button("✅ Valider", use_container_width=True, type="primary")
 
-        if submitted:
-            user_rep = int(user_input)
+        def soumettre():
+            user_rep = int(st.session_state[f"quiz_input_{rnd}"])
+            if st.session_state.quiz_answered:
+                return
             st.session_state.quiz_user_rep = user_rep
             st.session_state.quiz_answered = True
             if user_rep == solution:
@@ -422,6 +421,16 @@ def page_quiz():
                 st.session_state.score,
                 question.replace(" = ?", "")
             )
+
+        st.number_input(
+            "Ta réponse :",
+            step=1,
+            value=0,
+            key=f"quiz_input_{rnd}",
+            on_change=soumettre,
+        )
+        if st.button("✅ Valider", use_container_width=True, type="primary"):
+            soumettre()
             st.rerun()
 
     else:
