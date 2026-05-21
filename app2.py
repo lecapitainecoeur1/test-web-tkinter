@@ -239,6 +239,7 @@ defaults = {
     "quiz_solution": None,
     "quiz_answered": False,
     "quiz_user_rep": None,
+    "quiz_round": 0,
     "calc_result": None,
 }
 for k, v in defaults.items():
@@ -290,6 +291,7 @@ def start_quiz(op: Op):
     st.session_state.quiz_solution = sol
     st.session_state.quiz_answered = False
     st.session_state.quiz_user_rep = None
+    st.session_state.quiz_round = st.session_state.get("quiz_round", 0) + 1
     go("quiz")
 
 
@@ -401,8 +403,9 @@ def page_quiz():
     st.markdown(f"<div class='op-display'>{question}</div>", unsafe_allow_html=True)
 
     if not answered:
-        with st.form("quiz_form", clear_on_submit=True):
-            user_input = st.number_input("Ta réponse :", step=1, value=0, key="quiz_input")
+        rnd = st.session_state.quiz_round
+        with st.form(f"quiz_form_{rnd}", clear_on_submit=True):
+            user_input = st.number_input("Ta réponse :", step=1, value=0, key=f"quiz_input_{rnd}")
             submitted = st.form_submit_button("✅ Valider", use_container_width=True, type="primary")
 
         if submitted:
