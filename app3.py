@@ -393,7 +393,7 @@ def page_menu():
 
 
 # ─── PAGE: QUIZ ───────────────────────────────────────────────────────────────
-ddef page_quiz():
+def page_quiz():
     op = st.session_state.quiz_op
     question = st.session_state.quiz_question
     solution = st.session_state.quiz_solution
