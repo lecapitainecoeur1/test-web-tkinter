@@ -122,10 +122,10 @@ h1, h2, h3 {
 
 /* Text input */
 .stTextInput > div > div > input {
-    background: rgba(255,255,255,0.08) !important;
+    background: rgba(255,255,255,0.9) !important;
     border: 2px solid rgba(255,255,255,0.2) !important;
     border-radius: 10px !important;
-    color: white !important;
+    color: black !important;
     font-family: 'Fredoka One', cursive !important;
     font-size: 1.5rem !important;
     text-align: center !important;
