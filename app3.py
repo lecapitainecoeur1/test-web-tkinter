@@ -467,11 +467,23 @@ def page_quiz():
 
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("🔄 Rejouer", use_container_width=True, type="primary"):
-                start_quiz(st.session_state.quiz_op)
+            if st.button("🔄 Rejouer", use_container_width=True, type="primary", key=f"rejouer_{st.session_state.quiz_round}"):
+                op_actuel = st.session_state.quiz_op
+                n1, n2, q, sol = generer_question(op_actuel)
+                old_key = f"quiz_input_{st.session_state.quiz_round}"
+                if old_key in st.session_state:
+                    del st.session_state[old_key]
+                st.session_state.quiz_round    += 1
+                st.session_state.quiz_op        = op_actuel
+                st.session_state.quiz_nb1       = n1
+                st.session_state.quiz_nb2       = n2
+                st.session_state.quiz_question  = q
+                st.session_state.quiz_solution  = sol
+                st.session_state.quiz_answered  = False
+                st.session_state.quiz_user_rep  = None
                 st.rerun()
         with col2:
-            if st.button("🏠 Menu", use_container_width=True):
+            if st.button("🏠 Menu", use_container_width=True, key=f"menu_{st.session_state.quiz_round}"):
                 go("menu")
                 st.rerun()
 
