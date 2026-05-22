@@ -468,7 +468,8 @@ def page_quiz():
         col1, col2 = st.columns(2)
         with col1:
             if st.button("🔄 Rejouer", use_container_width=True, type="primary", key=f"rejouer_{st.session_state.quiz_round}"):
-                op_actuel = st.session_state.quiz_op
+                st.write(st.session_state.quiz_op)
+                op_actuel = Op(st.session_state.quiz_op.value)
                 n1, n2, q, sol = generer_question(op_actuel)
                 old_key = f"quiz_input_{st.session_state.quiz_round}"
                 if old_key in st.session_state:
