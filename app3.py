@@ -286,23 +286,29 @@ def generer_question(op: Op):
     raise ValueError(f"Opération inconnue : {op}")
 
 def start_quiz(op: Op):
-    """Initialise une nouvelle question de quiz pour l'opération donnée."""
     try:
         n1, n2, q, sol = generer_question(op)
     except Exception as e:
         st.error(f"Erreur lors de la génération de la question : {e}")
         return
 
-    st.session_state.quiz_op = op
-    st.session_state.quiz_nb1 = n1
-    st.session_state.quiz_nb2 = n2
+    # Forcer un nouveau round AVANT tout
+    new_round = st.session_state.quiz_round + 1
+
+    # Nettoyer l'ancienne clé d'input pour forcer Streamlit à recréer le widget
+    old_key = f"quiz_input_{st.session_state.quiz_round}"
+    if old_key in st.session_state:
+        del st.session_state[old_key]
+
+    st.session_state.quiz_op       = op
+    st.session_state.quiz_nb1      = n1
+    st.session_state.quiz_nb2      = n2
     st.session_state.quiz_question = q
     st.session_state.quiz_solution = sol
     st.session_state.quiz_answered = False
     st.session_state.quiz_user_rep = None
-    st.session_state.quiz_round = st.session_state.quiz_round + 1
+    st.session_state.quiz_round    = new_round
     go("quiz")
-
 
 # ─── PAGE: LOGIN ──────────────────────────────────────────────────────────────
 def page_login():
