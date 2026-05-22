@@ -462,8 +462,8 @@ def page_quiz():
         col1, col2 = st.columns(2)
         with col1:
             if st.button("🔄 Rejouer", use_container_width=True, type="primary"):
-            start_quiz(st.session_state.quiz_op)
-            st.rerun()
+                start_quiz(st.session_state.quiz_op)
+                st.rerun()
         with col2:
             if st.button("🏠 Menu", use_container_width=True):
                 go("menu")
