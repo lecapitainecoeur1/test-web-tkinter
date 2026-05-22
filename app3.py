@@ -300,7 +300,7 @@ def start_quiz(op: Op):
     st.session_state.quiz_solution = sol
     st.session_state.quiz_answered = False
     st.session_state.quiz_user_rep = None
-    st.session_state.quiz_round = st.session_state.get("quiz_round", 0) + 1
+    st.session_state.quiz_round = st.session_state.quiz_round + 1
     go("quiz")
 
 
@@ -462,8 +462,8 @@ def page_quiz():
         col1, col2 = st.columns(2)
         with col1:
             if st.button("🔄 Rejouer", use_container_width=True, type="primary"):
-                start_quiz(op)
-                st.rerun()
+            start_quiz(st.session_state.quiz_op)
+            st.rerun()
         with col2:
             if st.button("🏠 Menu", use_container_width=True):
                 go("menu")
